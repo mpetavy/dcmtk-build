@@ -1,6 +1,11 @@
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim as builder
 
-ARG CMAKE_OPTIONS=-DDCMTK_ENABLE_PRIVATE_TAGS:BOOL=TRUE -DDCMTK_LINK_STATIC:BOOL=TRUE -DDCMTK_PORTABLE_LINUX_BINARIES:BOOL=TRUE
+ARG CMAKE_OPTIONS=\
+	-DDCMTK_ENABLE_PRIVATE_TAGS:BOOL=TRUE \
+	-DDCMTK_LINK_STATIC:BOOL=TRUE \
+#	-DDCMTK_PORTABLE_LINUX_BINARIES:BOOL=TRUE \
+	-DBUILD_SHARED_LIBS:BOOL=FALSE \
+	-DCMAKE_EXE_LINKER_FLAGS="-static"
 
 RUN apt update -y \
 	&& apt upgrade -y
@@ -47,3 +52,18 @@ RUN wget --no-check-certificate https://dicom.offis.de/download/dcmtk/dcmtk368/d
 	&& make -j8 \
 	&& make DESTDIR=../dcmtk-3.6.8-install install
 	
+FROM debian:bookworm-slim
+
+RUN apt update -y \
+	&& apt upgrade -y
+
+RUN apt install \
+	libtiff-dev \
+	libpng-dev \
+	libssl-dev \
+	libxml2-dev \
+	-y
+
+COPY --from=builder /dcmtk-3.6.8-install /dcmtk
+
+ENTRYPOINT ["bash"]
