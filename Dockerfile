@@ -41,6 +41,7 @@ libwebp-dev \
 libxml2-dev \
 wget \
 zlib1g-dev \
+zip \
 -y
 
 RUN wget --no-check-certificate https://dicom.offis.de/download/dcmtk/dcmtk368/dcmtk-3.6.8.tar.gz -O dcmtk-3.6.8.tar.gz \
@@ -50,7 +51,8 @@ RUN wget --no-check-certificate https://dicom.offis.de/download/dcmtk/dcmtk368/d
 && cd dcmtk-3.6.8-build \
 && cmake $CMAKE_OPTIONS ../dcmtk-3.6.8 \
 && make -j8 \
-&& make DESTDIR=../dcmtk-3.6.8-install install
+&& make DESTDIR=../dcmtk-3.6.8-install install \
+&& zip -r /dcmtk.zip /dcmtk-3.6.8-install/
 
 FROM debian:bookworm-slim
 
@@ -65,5 +67,11 @@ libxml2-dev \
 -y
 
 COPY --from=builder /dcmtk-3.6.8-install /
+
+# copy the ZIP content to the host
+# docker create dcmtk
+# docker create <container id>:/dcmtk.zip .
+
+COPY --from=builder /dcmtk.zip /
 
 ENTRYPOINT ["bash"]
