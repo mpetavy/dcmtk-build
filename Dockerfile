@@ -44,15 +44,15 @@ zlib1g-dev \
 zip \
 -y
 
-RUN wget --no-check-certificate https://dicom.offis.de/download/dcmtk/dcmtk368/dcmtk-3.6.8.tar.gz -O dcmtk-3.6.8.tar.gz \
-&& tar -xzf dcmtk-3.6.8.tar.gz \
-&& mkdir dcmtk-3.6.8-install \
-&& mkdir dcmtk-3.6.8-build \
-&& cd dcmtk-3.6.8-build \
-&& cmake $CMAKE_OPTIONS ../dcmtk-3.6.8 \
+RUN wget --no-check-certificate https://dicom.offis.de/download/dcmtk/dcmtk369/dcmtk-3.6.9.tar.gz -O dcmtk-3.6.9.tar.gz \
+&& tar -xzf dcmtk-3.6.9.tar.gz \
+&& mkdir dcmtk-3.6.9-install \
+&& mkdir dcmtk-3.6.9-build \
+&& cd dcmtk-3.6.9-build \
+&& cmake $CMAKE_OPTIONS ../dcmtk-3.6.9 \
 && make -j8 \
-&& make DESTDIR=../dcmtk-3.6.8-install install \
-&& zip -r /dcmtk.zip /dcmtk-3.6.8-install/
+&& make DESTDIR=../dcmtk-3.6.9-install install \
+&& zip -r /dcmtk.zip /dcmtk-3.6.9-install/
 
 FROM debian:bookworm-slim
 
@@ -66,7 +66,7 @@ libssl-dev \
 libxml2-dev \
 -y
 
-COPY --from=builder /dcmtk-3.6.8-install /
+COPY --from=builder /dcmtk-3.6.9-install /
 
 # copy the ZIP content to the host
 # docker create dcmtk
